@@ -1,0 +1,22 @@
+{
+  "name": "bbcopter",
+  "version": "0.0.0",
+  "description": "This is a quadcopter project for Beagleboard black",
+  "main": "bbcopter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jstapels/bbcopter.git"
+  },
+  "keywords": [
+    "Beagleboard",
+    "Black",
+    "quadcopter"
+  ],
+  "author": "Jason Stapels, Timothe Fillion Brunet",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "2fcae570b2f6435a48f9233908d8896051b5115e"
+}

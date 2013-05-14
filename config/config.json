@@ -1,0 +1,10 @@
+{
+	"DOF": 6,
+	"sensors": {
+		"accel": "ADXL345",
+		"gyro": "ITG3200",
+		"mag": null
+	},
+	"debug": true,
+	"minArmedThrottle" :300
+}
