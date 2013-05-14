@@ -1,6 +1,6 @@
 bbcopter
 ========
 
-A BeagleBone based multi-rotor copter.
+A BeagleBone Black based multi-rotor copter.
 
 http://bbcopter.org
