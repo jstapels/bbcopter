@@ -7,6 +7,7 @@
 	},
 	"motor": "MOTOR_PWM",
 	"receiver": "328p",
+	"webserver" : true,
 	"debug": true,
 
 
