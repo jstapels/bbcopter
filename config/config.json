@@ -5,6 +5,10 @@
 		"gyro": "ITG3200",
 		"mag": null
 	},
+	"motor": "MOTOR_PWM",
+	"receiver": "328p",
 	"debug": true,
-	"minArmedThrottle" :300
+
+
+	"minArmedThrottle": 300
 }
