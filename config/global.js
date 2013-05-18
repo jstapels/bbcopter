@@ -1,7 +1,27 @@
 function define(config) {
 	var gl = {
-		OFF : 0x00,
-		ON : 0x01,
+		OFF : 0,
+		ON : 1,
+
+		XAXIS : 0,
+		YAXIS : 1,
+		ZAXIS : 2,
+
+		THROTTLE : 3,
+		MODE : 4,
+		AUX1 : 5,
+		AUX2 : 6,
+		AUX3 : 7,
+		AUX4 : 8,
+		AUX5 : 9,
+		
+		
+		//STATUS
+		SENSOR_ERROR : "Error with sensor",
+		MOTOR_ERROR : "Error with motor",
+		RECEIVER_ERROR : "Error with receiver",
+		
+		
 		/**
 		 * Flight control global declaration
 		 */

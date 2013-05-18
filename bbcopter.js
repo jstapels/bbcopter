@@ -1,7 +1,10 @@
 //load node module requirements
 var fs = global.fs = require('fs');
-var util = require("util");
+var util = require('util');
+var async = require('async');
 
+var _Math = {};
+_Math.FourthOrderFilter = require('./math/fourthOrderFilter');
 //load configuration file
 var config = global.config = JSON.parse(fs.readFileSync('./config/config.json'));
 
@@ -38,6 +41,100 @@ if (global.DOF == 9) {
 try {
 	var motor = global.motor = require(config.motor);
 } catch(err) {
-	console.log("Cannot load mag module!\nPlease check your config.json file and you need to have the same name for your module under node_module folder");
+	console.log("Cannot load motor module!\nPlease check your config.json file and you need to have the same name for your module under node_module folder");
 	global.motorOK = false;
 }
+
+// We load receiver module
+try {
+	var receiver = global.receiver = require(config.receiver);
+} catch(err) {
+	console.log("Cannot load receiver module!\nPlease check your config.json file and you need to have the same name for your module under node_module folder");
+}
+
+// we load web server
+if (config.webserver) {
+	try {
+		var webserver = require("bbcopterWebServer");
+	} catch(err) {
+		console.log("Cannot load webserver module!\nPlease do npm install before launching the code.");
+	}
+}
+
+/**
+ * Plugins must be under plugins folder. Each plugin must have its own folder.
+ * Config file must contain the folder name in the plugin parameter.
+ * All plugin must have main.js in its folder to make the quad recognize it.
+ */
+if (config.plugins.length > 0) {
+	for (var i = 0; i < config.plugins.length; i++) {
+
+		try {
+			var plugins[i] = require('./plugins/' + config.plugins[i] + "/main.js");
+		} catch(err) {
+			console.log("Cannot load plugin " + config.plugins[i] + ". Error during the load of the plugin.");
+		}
+	};
+}
+
+//INITIALIZING SENSORS
+
+//use WATERFALL to make sure that all function was executed in order
+async.waterfall([
+
+//Accelerator init
+function(callback) {
+	accel.init(function(err) {
+		if (err) {
+			console.log("Error while initializing the accelerometer, error message : " + err);
+			if (!config.debug) {
+				exit(1);
+			}
+		}
+		callback(null);
+	});
+},
+
+//Gyrometer init
+function(callback) {
+	gyro.init(function(err) {
+		if (err) {
+			console.log("Error while initializing the gyrometer, error message : " + err);
+			if (!config.debug) {
+				exit(1);
+			}
+		}
+		callback(null);
+	});
+},
+
+//Magnometer init
+function(callback) {
+	if (global.DOF == 9) {
+		mag.init(function(err) {
+			if (err) {
+				console.log("Error while initializing the magnometer, error message : " + err);
+				if (!config.debug) {
+					exit(1);
+				}
+			}
+			callback(null);
+		});
+	} else {
+		callback(null);
+	}
+}], function(err) {
+	if (err) {
+		global.status = global.SENSOR_ERROR;
+		console.log("Initialization will continue because debugger is activated, please don't try to fly!");
+	}
+});
+
+if ( typeof motor != "undefined") {
+	//for now, only 4 engine
+	motor.init(4);
+} else {
+	console.log("Quad have no motor available");
+}
+
+receiver.init();

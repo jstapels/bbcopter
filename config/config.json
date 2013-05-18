@@ -9,7 +9,8 @@
 	"receiver": "328p",
 	"webserver" : true,
 	"debug": true,
-
+	
+	"plugins" : [],
 
 	"minArmedThrottle": 300
 }
