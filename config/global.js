@@ -71,7 +71,12 @@ function define(config) {
 		headingHold : 0, // calculated adjustment for quad to go to heading (PID output)
 		heading : 0, // measured heading from yaw gyro (process variable)
 		relativeHeading : 0, // current heading the quad is set to (set point)
-		headingHoldState : this.OFF
+		headingHoldState : this.OFF,
+		
+		/**
+		 * Accelerometer Const 
+		 */
+		SAMPLECOUNT : 400
 	}
 
 	return gl;

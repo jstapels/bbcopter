@@ -2,22 +2,22 @@
 var FourthOrderFilter = {};
 
 //global var
-var fourthOrder[4];
+var fourthOrder = new Array(4);
 
 //public function
 FourthOrderFilter.computeFourthOrder = function(currentInput, fourthOrderData)
 {
   // cheby2(4,60,12.5/50)
-  var _b0  0.001893594048567
-  var _b1 -0.002220262954039
-  var _b2  0.003389066536478
-  var _b3 -0.002220262954039
-  var _b4  0.001893594048567
+  var _b0 = 0.001893594048567;
+  var _b1 = -0.002220262954039;
+  var _b2 = 0.003389066536478;
+  var _b3 = -0.002220262954039;
+  var _b4 = 0.001893594048567;
   
-  var _a1 -3.362256889209355
-  var _a2  4.282608240117919
-  var _a3 -2.444765517272841
-  var _a4  0.527149895089809
+  var _a1 = -3.362256889209355;
+  var _a2 = 4.282608240117919;
+  var _a3 = -2.444765517272841;
+  var _a4 = 0.527149895089809;
   
   var output;
   

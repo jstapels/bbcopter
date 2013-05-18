@@ -12,7 +12,9 @@
 		"url": "git://github.com/jstapels/bbcopter.git"
 	},
 	"dependencies": {
-		"bbcopterWebServer": "git://github.com/timbit123/bbcopterWebServer.git"
+		"bbcopterWebServer": "git://github.com/timbit123/bbcopterWebServer.git",
+		"cli-color" : "*",
+		"async" : "*"
 	},
 	"keywords": ["Beagleboard", "Black", "quadcopter"],
 	"author": "Jason Stapels, Timothe Fillion Brunet",
