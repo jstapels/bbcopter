@@ -5,7 +5,7 @@
 	"main": "bbcopter.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start" : "npm bbcopter.js"
+		"start" : "node bbcopter.js"
 	},
 	"repository": {
 		"type": "git",
