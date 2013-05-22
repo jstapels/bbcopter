@@ -3,7 +3,36 @@ var fs = global.fs = require('fs');
 var util = require('util');
 var async = require('async');
 var log = global.log = require('./tools/logger.js');
+
+/**
+ * Initialize variables
+ */
 var plugins = [];
+
+var accelVars = {
+	SAMPLECOUNT : 400,
+	accelScaleFactor : [0.0, 0.0, 0.0],
+	runTimeAccelBias : [0, 0, 0],
+	accelOneG : 0.0,
+	meterPerSecSec : [0.0, 0.0, 0.0],
+	accelSample : [0, 0, 0],
+	accelSampleCount : 0
+};
+
+var gyroVars = {
+	FINDZERO : 49,
+	gyroRate : [0.0, 0.0, 0.0],
+	gyroZero : [0, 0, 0],
+	gyroSample : [0, 0, 0],
+	gyroScaleFactor : 0.0,
+	gyroHeading : 0.0,
+	gyroLastMesuredTime : 0,
+	gyroSampleCount : 0
+};
+
+/**
+ * Initialize Modules
+ */
 log.init();
 
 //math librarys
@@ -22,6 +51,7 @@ var gl = global.gl = new require("./config/global.js")(config);
  */
 try {
 	var accel = global.accel = require(config.sensors.accel);
+
 } catch(err) {
 	log.error("Cannot load Accel module!\nPlease check your config.json file and you need to have the same name for your module under node_module folder");
 	process.exit(1);
@@ -89,7 +119,7 @@ async.waterfall([
 
 //Accelerator init
 function(callback) {
-	accel.init(function(err) {
+	accel.init(accelVars, function(err) {
 		if (err) {
 			log.error("Error while initializing the accelerometer, error message : " + err);
 			if (!config.debug) {
@@ -102,7 +132,7 @@ function(callback) {
 
 //Gyrometer init
 function(callback) {
-	gyro.init(function(err) {
+	gyro.init(gyroVars, function(err) {
 		if (err) {
 			log.error("Error while initializing the gyrometer, error message : " + err);
 			if (!config.debug) {
@@ -131,16 +161,61 @@ function(callback) {
 }], function(err) {
 	if (err) {
 		global.status = global.SENSOR_ERROR;
-		clog.error("Initialization will continue because debugger is activated, please don't try to fly!");
+		if (config.debug) {
+			log.error("Initialization will continue because debugger is activated, please don't try to fly!");
+		} else {
+			exit(1);
+		}
 	}
+
+	//we continue the initialization, motor and receiver
+	if ( typeof motor != "undefined") {
+		//for now, only 4 engine
+		motor.init(4);
+	} else {
+		log.error("Quad have no motor available");
+		if (!config.debug) {
+			exit(1);
+		}
+	}
+
+	//we continue the initialization, motor and receiver
+	if ( typeof receiver != "undefined") {
+		//for now, only 4 engine
+		receiver.init();
+	} else {
+		log.error("Quad have no receiver available");
+		if (!config.debug) {
+			exit(1);
+		}
+	}
+
+	//Initialisation is terminated, we can start looping
+	loop();
 });
 
-//TODO: Finish the async here 
-if ( typeof motor != "undefined") {
-	//for now, only 4 engine
-	motor.init(4);
-} else {
-	log.error("Quad have no motor available");
+function measureCriticalSensors() {
+	gyro.measureGyroSum();
+	accel.measureAccelSum();
 }
 
-receiver.init();
+//we need callback to make everything smooth!
+var lastLoop = Date.now();
+var frame = 0;
+function loop() {
+	var date = Date.now();
+	var delta = date - lastLoop;
+	lastLoop = date;
+	if (delta >= 10) {
+		frame++;
+		//we process tasks here!
+		async([], function(err) {
+			loop();
+			if (frameCounter >= 100) {
+				frameCounter = 0;
+			}
+		});
+	} else {
+		loop();
+	}
+}
