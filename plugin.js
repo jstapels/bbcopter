@@ -5,7 +5,17 @@ var util = require('util');
 var events = require('events');
 var packet = require('./packet');
 
- /**
+
+/**
+ * The plugin manager. All plugins must register with this manager.
+ */
+function PluginManager() {
+    
+}
+
+
+
+/**
  * The base plugin object that all plugins should extend.
  * <p>
  * Extend this and then make sure you call the constructor.
@@ -54,4 +64,5 @@ Plugin.prototype.setPacket = function(type, value) {
     }
 };
 
+// Module exports.
 exports.Plugin = Plugin;

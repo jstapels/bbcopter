@@ -2,7 +2,8 @@
  * Contains a list of all the different types of Packets that plugins can use.
  */
 
-exports.Packet = Object.freeze({
+/** Packet fields. All plugins should be using these packets. */
+var Packet = Object.freeze({
 	// Input Data Types
 	REQUEST_YAW : "Request Yaw",
 	REQUEST_ROLL : "Request Roll",
@@ -24,3 +25,6 @@ exports.Packet = Object.freeze({
 	SERVO_2 : "Servo 2",
 	SERVO_3 : "Servo 3"
 });
+
+// Exports
+exports.Packet = Packet;
