@@ -1,43 +1,42 @@
 /**
- * MPU6050 device I2C library for Node.js
+ * MPU6050 minimal device I2C library for Node.js
  * Based on Jeff Rowberg's MPU6050 I2C device library.
  * 2012/05/26 by Jason Stapels <jstapels@gmail.com>
  * 
  * Changelog:
  *     XX - ToDo...
  */
-/* ============================================================================================
-MPU6050 device I2C library code for Node.js is placed under the MIT license
-Copyright (c) 2013 Jason Stapels
+//============================================================================================
+// MPU6050 device I2C library code for Node.js is placed under the MIT license
+// Copyright (c) 2013 Jason Stapels
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//================================================================================================
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-================================================================================================
-*/
-
-var I2cDev = require('../tools/i2cdev');
+var i2c = require('i2c');
 
 /**
  * Default constructor, uses default I2C address or default SS Pin if SPI
  * @see MPU6050.DEFAULT_ADDRESS
  */
 function MPU6050(address) {
-    this.address = address || MPU6050.DEFAULT_ADDRESS;
+  this.address = address || MPU6050.DEFAULT_ADDRESS;
 }
 
 MPU6050.ADDRESS_AD0_LOW = 0x68; // address pin low (GND); default for InvenSense evaluation board
@@ -53,12 +52,12 @@ MPU6050.DEFAULT_ADDRESS = MPU6050.ADDRESS_AD0_LOW;
  * the default internal clock source.
  */
 MPU6050.prototype.initialize = function() {
-    this.i2cdev = new I2cDev(this.address, {device : '/dev/i2c-1'});
-    
-    this.setClockSource(MPU6050.CLOCK_PLL_XGYRO);
-    this.setFullScaleGyroRange(MPU6050.GYRO_FS_250);
-    this.setFullScaleAccelRange(MPU6050.ACCEL_FS_2);
-    this.setSleepEnabled(false);
+  this.i2cdev = new I2cDev(this.address, {device : '/dev/i2c-1'});
+  
+  this.setClockSource(MPU6050.CLOCK_PLL_XGYRO);
+  this.setFullScaleGyroRange(MPU6050.GYRO_FS_250);
+  this.setFullScaleAccelRange(MPU6050.ACCEL_FS_2);
+  this.setSleepEnabled(false);
 };
 
 /**
@@ -67,7 +66,7 @@ MPU6050.prototype.initialize = function() {
  * @return True if connection is valid, false otherwise
  */
 MPU6050.prototype.testConnection = function() {
-    return this.getDeviceID() === 0x34;
+  return this.getDeviceID() === 0x34;
 };
 
 // WHO_AM_I register
@@ -82,7 +81,7 @@ MPU6050.WHO_AM_I_LENGTH = 6;
  * @return Device ID (should be 0x68, 104 dec, 150 oct)
  */
 MPU6050.prototype.getDeviceID = function() {
-    return this.i2cdev.readBits(MPU6050.RA_WHO_AM_I, MPU6050.WHO_AM_I_BIT, MPU6050.WHO_AM_I_LENGTH);
+  return this.i2cdev.readBits(MPU6050.RA_WHO_AM_I, MPU6050.WHO_AM_I_BIT, MPU6050.WHO_AM_I_LENGTH);
 };
 
 /**
@@ -93,7 +92,7 @@ MPU6050.prototype.getDeviceID = function() {
  * @see getDeviceID()
  */
 MPU6050.prototype.setDeviceID = function(id) {
-    this.i2cdev.writeBits(MPU6050.RA_WHO_AM_I, MPU6050.WHO_AM_I_BIT, MPU6050.WHO_AM_I_LENGTH, id);
+  this.i2cdev.writeBits(MPU6050.RA_WHO_AM_I, MPU6050.WHO_AM_I_BIT, MPU6050.WHO_AM_I_LENGTH, id);
 };
 
 // GYRO_CONFIG register
@@ -121,7 +120,7 @@ MPU6050.GYRO_FS_2000 = 0x03;
  * @return Current full-scale gyroscope range setting
  */
 MPU6050.prototype.getFullScaleGyroRange = function() {
-    return this.i2cdev.readBits(MPU6050.RA_GYRO_CONFIG, MPU6050.GCONFIG_FS_SEL_BIT, MPU6050.GCONFIG_FS_SEL_LENGTH);
+  return this.i2cdev.readBits(MPU6050.RA_GYRO_CONFIG, MPU6050.GCONFIG_FS_SEL_BIT, MPU6050.GCONFIG_FS_SEL_LENGTH);
 };
 
 /**
@@ -134,7 +133,7 @@ MPU6050.prototype.getFullScaleGyroRange = function() {
  * @see MPU6050_GCONFIG_FS_SEL_LENGTH
  */
 MPU6050.prototype.setFullScaleGyroRange = function(range) {
-    this.i2cdev.writeBits(MPU6050.RA_GYRO_CONFIG, MPU6050.GCONFIG_FS_SEL_BIT, MPU6050.GCONFIG_FS_SEL_LENGTH, range);
+  this.i2cdev.writeBits(MPU6050.RA_GYRO_CONFIG, MPU6050.GCONFIG_FS_SEL_BIT, MPU6050.GCONFIG_FS_SEL_LENGTH, range);
 };
 
 // ACCEL_CONFIG register
@@ -162,7 +161,7 @@ MPU6050.ACCEL_FS_16 = 0x03;
  * @return Current full-scale accelerometer range setting
  */
 MPU6050.prototype.getFullScaleAccelRange = function() {
-    return this.i2cdev.readBits(MPU6050.RA_ACCEL_CONFIG, MPU6050.ACONFIG_AFS_SEL_BIT, MPU6050.ACONFIG_AFS_SEL_LENGTH);
+  return this.i2cdev.readBits(MPU6050.RA_ACCEL_CONFIG, MPU6050.ACONFIG_AFS_SEL_BIT, MPU6050.ACONFIG_AFS_SEL_LENGTH);
 };
 
 /**
@@ -171,7 +170,7 @@ MPU6050.prototype.getFullScaleAccelRange = function() {
  * @see getFullScaleAccelRange()
  */
 MPU6050.prototype.setFullScaleAccelRange = function(range) {
-    this.i2cdev.writeBits(MPU6050.RA_ACCEL_CONFIG, MPU6050.ACONFIG_AFS_SEL_BIT, MPU6050.ACONFIG_AFS_SEL_LENGTH, range);
+  this.i2cdev.writeBits(MPU6050.RA_ACCEL_CONFIG, MPU6050.ACONFIG_AFS_SEL_BIT, MPU6050.ACONFIG_AFS_SEL_LENGTH, range);
 };
 
 // ACCEL_*OUT_* registers
@@ -184,23 +183,65 @@ MPU6050.RA_ACCEL_ZOUT_H = 0x3F;
 MPU6050.RA_ACCEL_ZOUT_L = 0x40;
 
 /**
+ * Get 3-axis accelerometer readings.
+ * These registers store the most recent accelerometer measurements.
+ * Accelerometer measurements are written to these registers at the Sample Rate
+ * as defined in Register 25.
+ *
+ * The accelerometer measurement registers, along with the temperature
+ * measurement registers, gyroscope measurement registers, and external sensor
+ * data registers, are composed of two sets of registers: an internal register
+ * set and a user-facing read register set.
+ *
+ * The data within the accelerometer sensors' internal register set is always
+ * updated at the Sample Rate. Meanwhile, the user-facing read register set
+ * duplicates the internal register set's data values whenever the serial
+ * interface is idle. This guarantees that a burst read of sensor registers will
+ * read measurements from the same sampling instant. Note that if burst reads
+ * are not used, the user is responsible for ensuring a set of single byte reads
+ * correspond to a single sampling instant by checking the Data Ready interrupt.
+ *
+ * Each 16-bit accelerometer measurement has a full scale defined in ACCEL_FS
+ * (Register 28). For each full scale setting, the accelerometers' sensitivity
+ * per LSB in ACCEL_xOUT is shown in the table below:
+ *
+ * <pre>
+ * AFS_SEL | Full Scale Range | LSB Sensitivity
+ * --------+------------------+----------------
+ * 0       | +/- 2g           | 8192 LSB/mg
+ * 1       | +/- 4g           | 4096 LSB/mg
+ * 2       | +/- 8g           | 2048 LSB/mg
+ * 3       | +/- 16g          | 1024 LSB/mg
+ * </pre>
+ * 
+ * @return An array containing the three accellerations.
+ */
+MPU6050.prototype.getAcceleration = function() {
+  buffer = this.i2cdev.readBytes(MPU6050.RA_ACCEL_XOUT_H, 6);
+  return [
+    buffer.readInt16BE(0),
+    buffer.readInt16BE(2),
+    buffer.readInt16BE(4)
+  ];
+};
+
+/**
  * Get raw 6-axis motion sensor readings (accel/gyro).
  * Retrieves all currently available motion sensor values.
  * @see getAcceleration()
  * @see getRotation()
- * @see MPU6050_RA_ACCEL_XOUT_H
  */
 MPU6050.prototype.getMotion6 = function() {
-    buffer = this.i2cdev.readBytes(MPU6050.RA_ACCEL_XOUT_H, 14);
-    
-    return {
-        accelX : buffer.readInt16BE(0),
-        accelY : buffer.readInt16BE(2),
-        accelZ : buffer.readInt16BE(4),
-        gyroX : buffer.readInt16BE(8),
-        gyroY : buffer.readInt16BE(10),
-        gyroZ : buffer.readInt16BE(12)
-    };
+  buffer = this.i2cdev.readBytes(MPU6050.RA_ACCEL_XOUT_H, 14);
+  
+  return [
+      buffer.readInt16BE(0),
+      buffer.readInt16BE(2),
+      buffer.readInt16BE(4),
+      buffer.readInt16BE(8),
+      buffer.readInt16BE(10),
+      buffer.readInt16BE(12)
+  ];
 };
 
 // GYRO_*OUT_* registers
@@ -272,7 +313,7 @@ MPU6050.PWR1_CLKSEL_LENGTH = 3;
  * @see MPU6050_PWR1_SLEEP_BIT
  */
 MPU6050.prototype.getSleepEnabled = function() {
-    return this.i2cdev.readBit(MPU6050.RA_PWR_MGMT_1, MPU6050.PWR1_SLEEP_BIT);
+  return this.i2cdev.readBit(MPU6050.RA_PWR_MGMT_1, MPU6050.PWR1_SLEEP_BIT);
 };
 
 /** Set sleep mode status.
@@ -282,7 +323,7 @@ MPU6050.prototype.getSleepEnabled = function() {
  * @see MPU6050_PWR1_SLEEP_BIT
  */
 MPU6050.prototype.setSleepEnabled = function(enabled) {
-    this.i2cdev.writeBit(MPU6050.RA_PWR_MGMT_1, MPU6050.PWR1_SLEEP_BIT, enabled);
+  this.i2cdev.writeBit(MPU6050.RA_PWR_MGMT_1, MPU6050.PWR1_SLEEP_BIT, enabled);
 };
 
 /**
@@ -290,7 +331,7 @@ MPU6050.prototype.setSleepEnabled = function(enabled) {
  * @return Current clock source setting
  */
 MPU6050.prototype.getClockSource = function() {
-    return this.i2cdev.readBits(MPU6050.RA_PWR_MGMT_1, MPU6050.PWR1_CLKSEL_BIT, MPU6050.PWR1_CLKSEL_LENGTH);
+  return this.i2cdev.readBits(MPU6050.RA_PWR_MGMT_1, MPU6050.PWR1_CLKSEL_BIT, MPU6050.PWR1_CLKSEL_LENGTH);
 };
 
 /**
@@ -322,7 +363,52 @@ MPU6050.prototype.getClockSource = function() {
  * @see getClockSource()
  */
 MPU6050.prototype.setClockSource = function(source) {
-    this.i2cdev.writeBits(MPU6050.RA_PWR_MGMT_1, MPU6050.PWR1_CLKSEL_BIT, MPU6050.PWR1_CLKSEL_LENGTH, source);
+  this.i2cdev.writeBits(MPU6050.RA_PWR_MGMT_1, MPU6050.PWR1_CLKSEL_BIT, MPU6050.PWR1_CLKSEL_LENGTH, source);
 };
 
 module.exports = MPU6050;
+
+/**
+ * This class extends the i2c library with some extra functionality available
+ * in the i2cdev library that the MPU60X0 library uses.
+ */
+function I2cDev(address, options) {
+  i2c.call(this, address, options);
+}
+
+I2cDev.prototype = Object.create(i2c.prototype);
+I2cDev.prototype.constructor = I2cDev;
+
+I2cDev.prototype.bitMask = function(bit, bitLength) {
+  return ((1 << bitLength) - 1) << (1 + bit - bitLength);
+};
+
+I2cDev.prototype.readBits = function(func, bit, bitLength, callback) {
+  var mask = this.bitMask(bit, bitLength);
+  
+  if (callback) {
+    this.readBytes(func, 1, function(err, buf) {
+      var bits = (buf[0] & mask) >> (1 + bit - bitLength);
+      callback(err, bits);
+    });
+  } else {
+    var buf = this.readBytes(func, 1);
+    return (buf[0] & mask) >> (1 + bit - bitLength);
+  }
+};
+
+I2cDev.prototype.readBit = function(func, bit, bitLength, callback) {
+  return this.readBits(func, bit, 1, callback);
+};
+
+I2cDev.prototype.writeBits = function(func, bit, bitLength, value, callback) {
+  var oldValue = this.readBytes(func, 1);
+  var mask = this.bitMask(bit, bitLength);
+  var newValue = oldValue ^ ((oldValue ^ (value << bit)) & mask);
+  this.writeBytes(func, [newValue], callback);
+};
+
+I2cDev.prototype.writeBit = function(func, bit, value, callback) {
+  this.writeBits(func, bit, 1, value, callback);
+};
+
