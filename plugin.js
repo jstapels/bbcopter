@@ -5,22 +5,62 @@ var util = require('util');
 var EventEmmiter = require('events').EventEmmiter;
 var packet = require('./packet');
 
+var PacketType = {
+    ACCEL_X : "Acceleration X-Axis (m/s)",
+    ACCEL_Y : "Acceleration Y-Axis (m/s)",
+    ACCEL_Z : "Acceleration Z-Axis (m/s)",
+    
+    GYRO_X : "Angle X-Axis (rad)",
+    GYRO_Y : "Angle Y-Axis (rad)",
+    GYRO_Z : "Angle Z-Axis (rad)"
+};  
+
+exports.PacketType = PacketType;
 
 /**
  * The plugin manager. All plugins must register with this manager.
  */
-function PluginManager() {
-	this.plugins = [];
+function PluginManager(config) {
+  this.activated = false;
+	this.plugins = config.plugins || [];
 }
 
 PluginManager.prototype.registerPlugin = function(plugin) {
-	
+  if (this.plugins.indexOf(plugin) !== -1) {
+    this.plugins.push(plugin);
+  }
+  
+  if (activated) {
+    activate(plugin);
+  }
 };
 
 PluginManager.prototype.unregisterPlugin = function(plugin) {
-	
+  var i = plugins.indexOf(plugin);
+  if (i !== -1) {
+    plugins.splice(i, 1);
+  }
+  
+  if (activated) {
+    deactivate(plugin);
+  }
 };
 
+PluginManager.prototype.activate = function(plugin) {
+  //plugin.getProvidedPacketTypes();
+  plugin.activate();
+};
+
+PluginManager.prototype.deactivate = function(plugin) {
+  //plugin.getProvidedPacketTypes();
+  plugin.deactivate();
+};
+
+PluginManager.prototype.activatePlugins = function(plugin) {
+  
+};
+
+exports.PluginManager = PluginManager;
 
 
 /**
@@ -64,20 +104,9 @@ function Plugin() {
 }
 
 // Extend the EventEmmiter class.
-Plugin.prototype = Object.create(EventEmmiter.prototype);
-Plugin.prototype.constructor = Plugin;
+util.inherits(Plugin, EventEmmiter);
 
 // Public methods
-
-/**
- * Called when the plugin is first initialized.
- * <p>
- * Note that this plugin doesn't have access to other plugins at this time.
- * All referenced to dependant plugins need to happen during the activattion.
- */
-Plugin.prototype.initialize = function() {
-  
-};
 
 /**
  * Called when your plugin is activated.
