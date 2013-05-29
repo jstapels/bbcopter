@@ -117,8 +117,8 @@ Kinematic.prototype.calculateKinematics = function(rollRate, pitchRate, yawRate,
   eulerAngles();
 }
   
-Kinematic.getGyroUnbias = function(axis) {
-  return correctedRateVector[axis];
+Kinematic.prototype.getGyroUnbias = function(axis) {
+  return this.correctedRateVector[axis];
 }
 
   // returns the kinematicsAngle of a specific axis in SI units (radians)
@@ -134,7 +134,7 @@ Kinematic.getGyroUnbias = function(axis) {
   // I'll fix later - AKA
   // returns heading in degrees as 0-360
 function kinematicsGetDegreesHeading(axis) {
-  float tDegrees;
+  var tDegrees;
     
   tDegrees = degrees(kinematicsAngle[axis]);
   if (tDegrees < 0.0)
