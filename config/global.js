@@ -21,7 +21,6 @@ function define(config) {
 		MOTOR_ERROR : "Error with motor",
 		RECEIVER_ERROR : "Error with receiver",
 		
-		
 		/**
 		 * Flight control global declaration
 		 */

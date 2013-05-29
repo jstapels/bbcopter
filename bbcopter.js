@@ -2,42 +2,18 @@
 var fs = global.fs = require('fs');
 var util = require('util');
 var async = require('async');
-var log = global.log = require('./tools/logger.js');
+global.log = require('./tools/logger.js');
 
 /**
  * Initialize variables
  */
 var plugins = [];
 
-var accelVars = {
-	SAMPLECOUNT : 400,
-	accelScaleFactor : [0.0, 0.0, 0.0],
-	runTimeAccelBias : [0, 0, 0],
-	accelOneG : 0.0,
-	meterPerSecSec : [0.0, 0.0, 0.0],
-	accelSample : [0, 0, 0],
-	accelSampleCount : 0
-};
-
-var gyroVars = {
-	FINDZERO : 49,
-	gyroRate : [0.0, 0.0, 0.0],
-	gyroZero : [0, 0, 0],
-	gyroSample : [0, 0, 0],
-	gyroScaleFactor : 0.0,
-	gyroHeading : 0.0,
-	gyroLastMesuredTime : 0,
-	gyroSampleCount : 0
-};
 
 /**
  * Initialize Modules
  */
 log.init();
-
-//math librarys
-var _Math = {};
-_Math.FourthOrderFilter = require('./math/fourthOrderFilter.js');
 
 //load configuration file
 //var config = global.config = JSON.parse(fs.readFileSync('./config/config.json'));
@@ -45,32 +21,23 @@ var config = global.config = require('./config/config.json');
 //load global variables informations
 var gl = global.gl = new require("./config/global.js")(config);
 
-/**
- * We load sensors here depending the config.json.
- * if Degree of freedom (DOF) is 6 we will not load the mag module, if DOF is 9 it will include the mag.
- */
-try {
-	var accel = global.accel = require(config.sensors.accel);
+var SensorController = require('./controller/sensor_controller.js');
 
-} catch(err) {
-	log.error("Cannot load Accel module!\nPlease check your config.json file and you need to have the same name for your module under node_module folder");
-	process.exit(1);
-}
-
-try {
-	var gyro = global.gyro = require(config.sensors.gyro);
-} catch(err) {
-	log.error("Cannot load Gyro module!\nPlease check your config.json file and you need to have the same name for your module under node_module folder");
-	process.exit(1);
-}
-if (global.DOF == 9) {
+// we load web server
+if (config.webserver) {
 	try {
-		var mag = global.mag = require(config.sensors.mag);
+		var WebServer = require("bbcopterWebServer");
 	} catch(err) {
-		log.error("Cannot load mag module!\nPlease check your config.json file and you need to have the same name for your module under node_module folder");
-		process.exit(1);
+		log.error("Cannot load webserver module!\nPlease do npm install before launching the code.");
 	}
 }
+
+var sensor= new SensorController();
+sensor.on('statusChanged', function(status)
+{
+	console.log("status changed");
+});
+sensor.init();
 
 // We load motor module
 try {
@@ -87,135 +54,24 @@ try {
 	log.error("Cannot load receiver module!\nPlease check your config.json file and you need to have the same name for your module under node_module folder");
 }
 
-// we load web server
-if (config.webserver) {
-	try {
-		var webserver = require("bbcopterWebServer");
-	} catch(err) {
-		log.error("Cannot load webserver module!\nPlease do npm install before launching the code.");
-	}
-}
-
 /**
  * Plugins must be under plugins folder. Each plugin must have its own folder.
  * Config file must contain the folder name in the plugin parameter.
  * All plugin must have main.js in its folder to make the quad recognize it.
  */
+/*
 if (config.plugins.length > 0) {
 	for (var i = 0; i < config.plugins.length; i++) {
 
 		try {
-			plugins.push(require('./plugins/' + config.plugins[i] + "/main.js"));
+			var plugin = new require('./plugins/' + config.plugins[i] + "/main.js")();
+			console.log(plugin.name);
+			plugins.push(plugin);
 		} catch(err) {
-			log.error("Cannot load plugin " + config.plugins[i] + ". Error during the load of the plugin.");
+			log.error("Cannot load plugin " + config.plugins[i] + ". Error during the load of the plugin. Error : " + err);
 		}
 	};
 }
 
-//INITIALIZING SENSORS
-
-//use WATERFALL to make sure that all function was executed in order
-async.waterfall([
-
-//Accelerator init
-function(callback) {
-	accel.init(accelVars, function(err) {
-		if (err) {
-			log.error("Error while initializing the accelerometer, error message : " + err);
-			if (!config.debug) {
-				exit(1);
-			}
-		}
-		callback(null);
-	});
-},
-
-//Gyrometer init
-function(callback) {
-	gyro.init(gyroVars, function(err) {
-		if (err) {
-			log.error("Error while initializing the gyrometer, error message : " + err);
-			if (!config.debug) {
-				exit(1);
-			}
-		}
-		callback(null);
-	});
-},
-
-//Magnometer init
-function(callback) {
-	if (global.DOF == 9) {
-		mag.init(function(err) {
-			if (err) {
-				log.error("Error while initializing the magnometer, error message : " + err);
-				if (!config.debug) {
-					exit(1);
-				}
-			}
-			callback(null);
-		});
-	} else {
-		callback(null);
-	}
-}], function(err) {
-	if (err) {
-		global.status = global.SENSOR_ERROR;
-		if (config.debug) {
-			log.error("Initialization will continue because debugger is activated, please don't try to fly!");
-		} else {
-			exit(1);
-		}
-	}
-
-	//we continue the initialization, motor and receiver
-	if ( typeof motor != "undefined") {
-		//for now, only 4 engine
-		motor.init(4);
-	} else {
-		log.error("Quad have no motor available");
-		if (!config.debug) {
-			exit(1);
-		}
-	}
-
-	//we continue the initialization, motor and receiver
-	if ( typeof receiver != "undefined") {
-		//for now, only 4 engine
-		receiver.init();
-	} else {
-		log.error("Quad have no receiver available");
-		if (!config.debug) {
-			exit(1);
-		}
-	}
-
-	//Initialisation is terminated, we can start looping
-	loop();
-});
-
-function measureCriticalSensors() {
-	gyro.measureGyroSum();
-	accel.measureAccelSum();
-}
-
-//we need callback to make everything smooth!
-var lastLoop = Date.now();
-var frame = 0;
-function loop() {
-	var date = Date.now();
-	var delta = date - lastLoop;
-	lastLoop = date;
-	if (delta >= 10) {
-		frame++;
-		//we process tasks here!
-		async([], function(err) {
-			loop();
-			if (frameCounter >= 100) {
-				frameCounter = 0;
-			}
-		});
-	} else {
-		loop();
-	}
-}
+console.log(plugins[0]);
+*/
