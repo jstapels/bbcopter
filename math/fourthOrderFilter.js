@@ -1,37 +1,37 @@
 
 function FourthOrderFilter() {
-	this.fourthOrder = new Array(4);
-	this.fourthOrder[global.XAXIS].inputTm1 = 0.0;
-	this.fourthOrder[global.XAXIS].inputTm2 = 0.0;
-	this.fourthOrder[global.XAXIS].inputTm3 = 0.0;
-	this.fourthOrder[global.XAXIS].inputTm4 = 0.0;
+	this.fourthOrder = [{},{},{},{}];
+	this.fourthOrder[XAXIS].inputTm1 = 0.0;
+	this.fourthOrder[XAXIS].inputTm2 = 0.0;
+	this.fourthOrder[XAXIS].inputTm3 = 0.0;
+	this.fourthOrder[XAXIS].inputTm4 = 0.0;
 
-	this.fourthOrder[global.XAXIS].outputTm1 = 0.0;
-	this.fourthOrder[global.XAXIS].outputTm2 = 0.0;
-	this.fourthOrder[global.XAXIS].outputTm3 = 0.0;
-	this.fourthOrder[global.XAXIS].outputTm4 = 0.0;
-
-	//////////
-	this.fourthOrder[global.YAXIS].inputTm1 = 0.0;
-	this.fourthOrder[global.YAXIS].inputTm2 = 0.0;
-	this.fourthOrder[global.YAXIS].inputTm3 = 0.0;
-	this.fourthOrder[global.YAXIS].inputTm4 = 0.0;
-
-	this.fourthOrder[global.YAXIS].outputTm1 = 0.0;
-	this.fourthOrder[global.YAXIS].outputTm2 = 0.0;
-	this.fourthOrder[global.YAXIS].outputTm3 = 0.0;
-	this.fourthOrder[global.YAXIS].outputTm4 = 0.0;
+	this.fourthOrder[XAXIS].outputTm1 = 0.0;
+	this.fourthOrder[XAXIS].outputTm2 = 0.0;
+	this.fourthOrder[XAXIS].outputTm3 = 0.0;
+	this.fourthOrder[XAXIS].outputTm4 = 0.0;
 
 	//////////
-	this.fourthOrder[global.ZAXIS].inputTm1 = -9.8065;
-	this.fourthOrder[global.ZAXIS].inputTm2 = -9.8065;
-	this.fourthOrder[global.ZAXIS].inputTm3 = -9.8065;
-	this.fourthOrder[global.ZAXIS].inputTm4 = -9.8065;
+	this.fourthOrder[YAXIS].inputTm1 = 0.0;
+	this.fourthOrder[YAXIS].inputTm2 = 0.0;
+	this.fourthOrder[YAXIS].inputTm3 = 0.0;
+	this.fourthOrder[YAXIS].inputTm4 = 0.0;
 
-	this.fourthOrder[global.ZAXIS].outputTm1 = -9.8065;
-	this.fourthOrder[global.ZAXIS].outputTm2 = -9.8065;
-	this.fourthOrder[global.ZAXIS].outputTm3 = -9.8065;
-	this.fourthOrder[global.ZAXIS].outputTm4 = -9.8065;
+	this.fourthOrder[YAXIS].outputTm1 = 0.0;
+	this.fourthOrder[YAXIS].outputTm2 = 0.0;
+	this.fourthOrder[YAXIS].outputTm3 = 0.0;
+	this.fourthOrder[YAXIS].outputTm4 = 0.0;
+
+	//////////
+	this.fourthOrder[ZAXIS].inputTm1 = -9.8065;
+	this.fourthOrder[ZAXIS].inputTm2 = -9.8065;
+	this.fourthOrder[ZAXIS].inputTm3 = -9.8065;
+	this.fourthOrder[ZAXIS].inputTm4 = -9.8065;
+
+	this.fourthOrder[ZAXIS].outputTm1 = -9.8065;
+	this.fourthOrder[ZAXIS].outputTm2 = -9.8065;
+	this.fourthOrder[ZAXIS].outputTm3 = -9.8065;
+	this.fourthOrder[ZAXIS].outputTm4 = -9.8065;
 }
 
 //public function
@@ -63,9 +63,6 @@ FourthOrderFilter.prototype.computeFourthOrder = function(currentInput, fourthOr
 	fourthOrderData.outputTm1 = output;
 
 	return output;
-}
-//public function
-FourthOrderFilter.setupFourthOrder = function() {
 }
 
 module.exports = FourthOrderFilter; 

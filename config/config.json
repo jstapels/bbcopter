@@ -7,7 +7,8 @@
 	},
 	"motor": "MOTOR_PWM",
 	"receiver": "328p",
-	"webserver" : true,
+	"webserver" : false,
+	"webPort" : 8888,
 	"debug": true,
 	
 	"plugins" : [],

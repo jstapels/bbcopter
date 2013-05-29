@@ -42,14 +42,15 @@ function Kinematic() {
 ////////////////////////////////////////////////////////////////////////////////
 // argUpdate
 ////////////////////////////////////////////////////////////////////////////////
-function argUpdate(gx, gy, gz, ax, ay, az, G_Dt) {
+function argUpdate(kinematic, gx, gy, gz, ax, ay, az, G_Dt) {
 
 	var norm;
 	var vx, vy, vz;
 	var q0i, q1i, q2i, q3i;
 	var ex, ey, ez;
-
-	this.halfT = G_Dt / 2;
+	var self = kinematic;
+	
+	self.halfT = G_Dt / 2;
 
 	// normalise the measurements
 	norm = Math.sqrt(ax * ax + ay * ay + az * az);
@@ -58,9 +59,9 @@ function argUpdate(gx, gy, gz, ax, ay, az, G_Dt) {
 	az = az / norm;
 
 	// estimated direction of gravity and flux (v and w)
-	vx = 2 * (this.q1 * this.q3 - this.q0 * this.q2);
-	vy = 2 * (this.q0 * this.q1 + this.q2 * this.q3);
-	vz = this.q0 * this.q0 - this.q1 * this.q1 - this.q2 * this.q2 + this.q3 * this.q3;
+	vx = 2 * (self.q1 * self.q3 - self.q0 * self.q2);
+	vy = 2 * (self.q0 * self.q1 + self.q2 * self.q3);
+	vz = self.q0 * self.q0 - self.q1 * self.q1 - self.q2 * self.q2 + self.q3 * self.q3;
 
 	// error is sum of cross product between reference direction of fields and direction measured by sensors
 	ex = (vy * az - vz * ay);
@@ -68,59 +69,60 @@ function argUpdate(gx, gy, gz, ax, ay, az, G_Dt) {
 	ez = (vx * ay - vy * ax);
 
 	// integral error scaled integral gain
-	this.exInt = this.exInt + ex * this.Ki;
-	if (isSwitched(this.previousEx, ex)) {
-		this.exInt = 0.0;
+	self.exInt = self.exInt + ex * self.Ki;
+	if (isSwitched(self.previousEx, ex)) {
+		self.exInt = 0.0;
 	}
-	this.previousEx = ex;
+	self.previousEx = ex;
 
-	this.eyInt = this.eyInt + ey * this.Ki;
-	if (isSwitched(this.previousEy, ey)) {
-		this.eyInt = 0.0;
+	self.eyInt = self.eyInt + ey * self.Ki;
+	if (isSwitched(self.previousEy, ey)) {
+		self.eyInt = 0.0;
 	}
-	this.previousEy = ey;
+	self.previousEy = ey;
 
-	this.ezInt = this.ezInt + ez * this.Ki;
-	if (isSwitched(this.previousEz, ez)) {
-		this.ezInt = 0.0;
+	self.ezInt = self.ezInt + ez * self.Ki;
+	if (isSwitched(self.previousEz, ez)) {
+		self.ezInt = 0.0;
 	}
-	this.previousEz = ez;
+	self.previousEz = ez;
 
 	// adjusted gyroscope measurements
-	gx = gx + this.Kp * ex + this.exInt;
-	gy = gy + this.Kp * ey + this.eyInt;
-	gz = gz + this.Kp * ez + this.ezInt;
+	gx = gx + self.Kp * ex + self.exInt;
+	gy = gy + self.Kp * ey + self.eyInt;
+	gz = gz + self.Kp * ez + self.ezInt;
 
 	// integrate quaternion rate and normalise
-	q0i = (-this.q1 * gx - this.q2 * gy - this.q3 * gz) * halfT;
-	q1i = (this.q0 * gx + this.q2 * gz - this.q3 * gy) * halfT;
-	q2i = (this.q0 * gy - this.q1 * gz + this.q3 * gx) * halfT;
-	q3i = (this.q0 * gz + this.q1 * gy - this.q2 * gx) * halfT;
-	this.q0 += q0i;
-	this.q1 += q1i;
-	this.q2 += q2i;
-	this.q3 += q3i;
+	q0i = (-self.q1 * gx - self.q2 * gy - self.q3 * gz) * self.halfT;
+	q1i = (self.q0 * gx + self.q2 * gz - self.q3 * gy) * self.halfT;
+	q2i = (self.q0 * gy - self.q1 * gz + self.q3 * gx) * self.halfT;
+	q3i = (self.q0 * gz + self.q1 * gy - self.q2 * gx) * self.halfT;
+	self.q0 += q0i;
+	self.q1 += q1i;
+	self.q2 += q2i;
+	self.q3 += q3i;
 
 	// normalise quaternion
-	norm = Math.sqrt(this.q0 * this.q0 + this.q1 * this.q1 + this.q2 * this.q2 + this.q3 * this.q3);
-	this.q0 = this.q0 / norm;
-	this.q1 = this.q1 / norm;
-	this.q2 = this.q2 / norm;
-	this.q3 = this.q3 / norm;
+	norm = Math.sqrt(self.q0 * self.q0 + self.q1 * self.q1 + self.q2 * self.q2 + self.q3 * self.q3);
+	self.q0 = self.q0 / norm;
+	self.q1 = self.q1 / norm;
+	self.q2 = self.q2 / norm;
+	self.q3 = self.q3 / norm;
 }
 
-function eulerAngles() {
-	this.kinematicsAngle[XAXIS] = Math.atan2(2 * (this.q0 * this.q1 + this.q2 * this.q3), 1 - 2 * (this.q1 * this.q1 + this.q2 * this.q2));
-	this.kinematicsAngle[YAXIS] = Math.asin(2 * (this.q0 * this.q2 - this.q1 * this.q3));
-	this.kinematicsAngle[ZAXIS] = Math.atan2(2 * (this.q0 * this.q3 + this.q1 * this.q2), 1 - 2 * (this.q2 * this.q2 + this.q3 * this.q3));
+function eulerAngles(kinematic) {
+	var self = kinematic;
+	self.kinematicsAngle[XAXIS] = Math.atan2(2 * (self.q0 * self.q1 + self.q2 * self.q3), 1 - 2 * (self.q1 * self.q1 + self.q2 * self.q2));
+	self.kinematicsAngle[YAXIS] = Math.asin(2 * (self.q0 * self.q2 - self.q1 * self.q3));
+	self.kinematicsAngle[ZAXIS] = Math.atan2(2 * (self.q0 * self.q3 + self.q1 * self.q2), 1 - 2 * (self.q2 * self.q2 + self.q3 * self.q3));
 }
 ////////////////////////////////////////////////////////////////////////////////
 // Calculate ARG
 ////////////////////////////////////////////////////////////////////////////////
 Kinematic.prototype.calculateKinematics = function(rollRate, pitchRate, yawRate, longitudinalAccel, lateralAccel, verticalAccel, G_DT) {
 
-	argUpdate(rollRate, pitchRate, yawRate, longitudinalAccel, lateralAccel, verticalAccel, G_Dt);
-	eulerAngles();
+	argUpdate(this, rollRate, pitchRate, yawRate, longitudinalAccel, lateralAccel, verticalAccel, G_Dt);
+	eulerAngles(this);
 }
 
 Kinematic.prototype.getGyroUnbias = function(axis) {
@@ -152,3 +154,5 @@ Kinematic.prototype.kinematicsGetDegreesHeading = function(axis) {
 // This is set in each subclass to identify which algorithm used
 //    return kinematicsType;
 //  }
+
+module.exports = Kinematic;
