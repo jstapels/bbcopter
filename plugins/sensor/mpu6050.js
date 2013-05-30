@@ -2,24 +2,22 @@
  * A plugin for the MPU6050, collects raw gyro and accel data and calculates the yaw, pitch, and roll.
  */
 
+var util = require('util');
 var MPU = require('mpu6050');
-var plugin = require('../../plugin');
-
-var EventType = plugin.EventType;
-var PluginManager = plugin.PluginManager;
-var Plugin = plugin.Plugin;
+var Plugin = require('../../lib/plugin');
+var EventType = require('../../lib/eventtype');
 
 function MPU6050(config) {
   Plugin.call(this);
   
   // Plugin Metadata
-  this.name = "MPU6050";
-  this.description = "MPU6050 Sensor Plugin";
-  this.majorVersion = 0;
-  this.minorVersion = 1;
-  this.requireEvents = [];
-  this.optionalEvents = [];
-  this.providedEvents = [
+  this._name = "MPU6050";
+  this._description = "MPU6050 Sensor Plugin";
+  this._majorVersion = 0;
+  this._minorVersion = 1;
+  this._requireEvents = [];
+  this._optionalEvents = [];
+  this._providedEvents = [
     EventType.SPEED_XYZ,
     EventType.ANGLE_XYZ
     ];
