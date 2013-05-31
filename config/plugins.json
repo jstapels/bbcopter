@@ -1,0 +1,12 @@
+{
+  "plugins" : [
+    "./plugins/debug/eventdumper",
+    {
+      "module" : "./plugins/sensor/mpu6050",
+      "config" : {
+        "refreshRate" : 10,
+        "device" : "/dev/i2c-1"
+      }
+    }
+  ]
+}

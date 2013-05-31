@@ -8,7 +8,7 @@ var Plugin = require('../../lib/plugin');
 var EventType = require('../../lib/eventtype');
 
 function MPU6050(config) {
-  Plugin.call(this);
+  Plugin.call(this, config);
   
   // Plugin Metadata
   this._name = "MPU6050";
@@ -22,14 +22,13 @@ function MPU6050(config) {
     EventType.ANGLE_XYZ
     ];
   
-  // Plugin config
-  this._refreshRate = config.refreshRate || 10; // refresh rate (in ms)
+  // Plugin Config
+  var device = (config && ('device' in config)) ? config.device : '/dev/i2c-1';
+  var address = (config && ('address' in config)) ? config.address : MPU.DEFAULT_ADDRESS;
+  this._refreshRate = (config && ('refreshRate' in config)) ? config.refreshRate : 10;
+  this._refreshSkew = 0;
   this._lastRefresh = Date.now();
   this._active = false;
-  
-  // MPU6050 Data
-  var device = config.device || "/dev/i2c-2";
-  var address = config.address || MPU.DEFAULT_ADDRESS;
   this._mpu = new MPU(device, address);
   
   // Sensor Data
@@ -44,40 +43,52 @@ function MPU6050(config) {
 util.inherits(MPU6050, Plugin);
 
 MPU6050.prototype.activate = function() {
-  _mpu.initialize();
-  
+  this._mpu.initialize();
   var self = this;
-  var updatePackets = function() {
-    var raw = self._mpu.getMotion6();
-
-    self._accelX = raw[0];
-    self._accelY = raw[1];
-    self._accelZ = raw[2];
-    self._gyroX = raw[3];
-    self._gyroY = raw[4];
-    self._gyroZ = raw[5];
-    
-    var ts = Date.now();
-    console.log("Delta reading: " + (ts - self._lastRefresh) + "ms");
-    self._lastRefresh = ts;
-    
-    self._setPacket(SPEED_XYZ, [self._accelX, self._accelY, self._accelZ]);
-    self._setPacket(ANGLE_XYZ, [self._angleX, self._angleY, self._angleZ]);
-    
-    setTimeout(this, self._refreshRate);
+  function updatePackets() {
+    if (self._active) {
+      var raw = self._mpu.getMotion6();
+      var ts = Date.now();
+      var delta = (ts - self._lastRefresh);
+      self._lastRefresh = ts;
+      console.log("Delta since last reading: " + delta + "ms");
+  
+      self._accelX = raw[0];
+      self._accelY = raw[1];
+      self._accelZ = raw[2];
+      self._gyroX = raw[3];
+      self._gyroY = raw[4];
+      self._gyroZ = raw[5];
+      
+      self._setPacket(EventType.SPEED_XYZ, [self._accelX, self._accelY, self._accelZ]);
+      self._setPacket(EventType.ANGLE_XYZ, [self._gyroX, self._gyroY, self._gyroZ]);
+      
+      if (self._refreshSkew) {
+        if (delta > self._refreshRate) {
+          self._refreshSkew--;
+        } else if (delta < self._refrehRate) {
+          self._refreshSkew++;
+        }
+      }
+      setTimeout(updatePackets, self._refreshRate + self._refreshSkew);
+    }
   };
   
   this._active = true;
   setTimeout(updatePackets, this._refreshRate);
 };
 
+MPU6050.prototype.setRefreshRate = function(ms) {
+  this._refreshRate = ms;
+};
+
 MPU6050.prototype.getRawData = function() {
-  return mpu.getMotion6();
+  return this._mpu.getMotion6();
 };
 
 MPU6050.prototype.deactivate = function() {
   this._active = false;
-  mpu.setSleepEnabled(1);
+  this._mpu.setSleepEnabled(1);
 };
 
 module.exports = MPU6050;
