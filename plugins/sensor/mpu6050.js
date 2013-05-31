@@ -69,7 +69,7 @@ MPU6050.prototype.activate = function() {
   };
   
   this._active = true;
-  process.nextTick(updatePackets());
+  process.nextTick(updatePackets);
 };
 
 MPU6050.prototype.setRefreshRate = function(ms) {
