@@ -50,32 +50,26 @@ MPU6050.prototype.activate = function() {
       var raw = self._mpu.getMotion6();
       var ts = Date.now();
       var delta = (ts - self._lastRefresh);
-      self._lastRefresh = ts;
-      console.log("Delta since last reading: " + delta + "ms");
-  
-      self._accelX = raw[0];
-      self._accelY = raw[1];
-      self._accelZ = raw[2];
-      self._gyroX = raw[3];
-      self._gyroY = raw[4];
-      self._gyroZ = raw[5];
-      
-      self._setPacket(EventType.SPEED_XYZ, [self._accelX, self._accelY, self._accelZ]);
-      self._setPacket(EventType.ANGLE_XYZ, [self._gyroX, self._gyroY, self._gyroZ]);
-      
-      if (self._refreshSkew) {
-        if (delta > self._refreshRate) {
-          self._refreshSkew--;
-        } else if (delta < self._refrehRate) {
-          self._refreshSkew++;
-        }
+      if (delta >= self._refreshRate) {
+        self._lastRefresh = ts;
+        console.log("Delta since last reading: " + delta + "ms");
+    
+        self._accelX = raw[0];
+        self._accelY = raw[1];
+        self._accelZ = raw[2];
+        self._gyroX = raw[3];
+        self._gyroY = raw[4];
+        self._gyroZ = raw[5];
+        
+        self._setPacket(EventType.SPEED_XYZ, [self._accelX, self._accelY, self._accelZ]);
+        self._setPacket(EventType.ANGLE_XYZ, [self._gyroX, self._gyroY, self._gyroZ]);
       }
-      setTimeout(updatePackets, self._refreshRate + self._refreshSkew);
+      process.nextTick(updatePackets());
     }
   };
   
   this._active = true;
-  setTimeout(updatePackets, this._refreshRate);
+  process.nextTick(updatePackets());
 };
 
 MPU6050.prototype.setRefreshRate = function(ms) {
