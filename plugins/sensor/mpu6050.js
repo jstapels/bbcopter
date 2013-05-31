@@ -47,10 +47,10 @@ MPU6050.prototype.activate = function() {
   var self = this;
   function updatePackets() {
     if (self._active) {
-      var raw = self._mpu.getMotion6();
       var ts = Date.now();
       var delta = (ts - self._lastRefresh);
       if (delta >= self._refreshRate) {
+        var raw = self._mpu.getMotion6();
         self._lastRefresh = ts;
         console.log("Delta since last reading: " + delta + "ms");
     
@@ -64,7 +64,7 @@ MPU6050.prototype.activate = function() {
         self._setPacket(EventType.SPEED_XYZ, [self._accelX, self._accelY, self._accelZ]);
         self._setPacket(EventType.ANGLE_XYZ, [self._gyroX, self._gyroY, self._gyroZ]);
       }
-      process.nextTick(updatePackets());
+      process.nextTick(updatePackets);
     }
   };
   
